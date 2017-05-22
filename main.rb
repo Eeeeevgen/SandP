@@ -1,3 +1,10 @@
+# Просьба указать версию Ruby, для которой приведены решения
+
+# По всем зачачам: Ruby при выполнении методов и блоков возвращает последнее вычисленное значение и использование ключевого слова return не является обязательным и обычно используется для преждевременного выхода и блока с возвращением какого-то значения
+# Просьба убрать из всех задачек лишние return'ы
+
+# Так же просьба ознакомиться со style guide'ом https://github.com/bbatsov/ruby-style-guide и постараться поправить код задач в соответствии с рекомендациями данного гайда
+
 require 'set'
 
 class WrongNumberOfPlayersError < StandardError; end
@@ -5,6 +12,8 @@ class NoSuchStrategyError < StandardError; end
 class WrongCurrencyValueError < StandardError; end
 
 # 1 task
+# Тут все верно, единственное что можно поправить соединить методы gsub и downcase в одну цепочку
+
 def palindrome?(string)
   string.gsub!(/[[:punct:][:blank:]]/, '')
   string.downcase!
@@ -13,6 +22,8 @@ end
 
 
 # 2 task
+# Тут часть методов можно соединить в pipe, также просьба подумать, как решить эту задачу короче (Подсказка, можно создать хэш с дефолтным значением для любого ключа)
+
 def count_words(string)
   string.gsub!(/[[:punct:]]/, '')
   string.downcase!
@@ -30,9 +41,15 @@ end
 
 
 # 3 task
+# Зачем подключается модуль Set и почему не используется обычный массив?
+# В Ruby условный оператор может быть как префиксным так и постфиксным и вторая строчка переписывается в следующую:
+# raise WrongNumberOfPlayersError, 'Wrong number of players' if inp.length > 2 - что намного проще ситается и воспринимается глазами
+
+
 def rps_game_winner(inp)
   if inp.length > 2 then raise WrongNumberOfPlayersError, 'Wrong number of players' end
   turns = Set.new ['R', 'S', 'P']
+# Попробовать переписать следующую строчку в более удобочитаемой форме (возможно в несколько строк)
   inp.each {|turn| unless turns.include?(turn[1]) then raise NoSuchStrategyError, 'No such strategy' end}
 
   if inp[0][1] == inp[1][1] then return inp[0] end
@@ -58,6 +75,8 @@ end
 
 
 # 4 task
+# Существует более короткое решение. Попробовать решить задачу в использованием методов группировки.
+
 def combine_anagrams(words)
   words.map! {|x| x.downcase}
   anagrams = Hash.new()
@@ -74,6 +93,8 @@ end
 
 
 # 5 task
+# Все ОК (кроме лишних return'ов)
+
 class Dessert
   attr_accessor :name, :calories
 
@@ -103,6 +124,9 @@ end
 
 
 # 7 task
+# Отличное ООП-решение
+# Просьба переписать избегая дублирования кода с использованием алисов методов, а также избегая переменных класса, заменив их на константы
+
 class Numeric
   def dollar
     return NumericCurrency.new(self, :dollars)
@@ -162,6 +186,8 @@ end
 
 
 # 8 task
+# Решение верное, но просьба переписать используя медот define_method, а не интерпретируя строку в код - это медленно и крайне не безопасно
+
 class Class
   def attr_accessor_with_history(*args)
     args.each do |arg|
@@ -179,6 +205,9 @@ end
 
 
 # 9 task
+# Вешение рабочее, но просьба найти решение, в котором не расширяются базовые String, а тем более основной класс Object
+# Попробовать реализовать одним методом
+
 class String
   def palindrome?
     string = self
@@ -204,6 +233,7 @@ end
 
 
 # 10 task
+# Верное решение. Существует более простое и короткое решение (Подсказка: не создавать лишнюю переменную и метод который возвращает всевозможные комбинации перемножаемых массивов)
 class CartesianProduct
   attr_accessor :c
   def initialize(a, b)
