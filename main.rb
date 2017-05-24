@@ -1,11 +1,13 @@
 # Просьба указать версию Ruby, для которой приведены решения
+# ruby 2.4.1p111 (2017-03-22 revision 58053) [x86_64-linux]
 
-# По всем зачачам: Ruby при выполнении методов и блоков возвращает последнее вычисленное значение и использование ключевого слова return не является обязательным и обычно используется для преждевременного выхода и блока с возвращением какого-то значения
+# По всем зачачам: Ruby при выполнении методов и блоков возвращает последнее вычисленное значение и использование
+# ключевого слова return не является обязательным и обычно используется для преждевременного выхода и блока с
+# возвращением какого-то значения
 # Просьба убрать из всех задачек лишние return'ы
 
-# Так же просьба ознакомиться со style guide'ом https://github.com/bbatsov/ruby-style-guide и постараться поправить код задач в соответствии с рекомендациями данного гайда
-
-require 'set'
+# Так же просьба ознакомиться со style guide'ом https://github.com/bbatsov/ruby-style-guide и постараться поправить код
+# задач в соответствии с рекомендациями данного гайда
 
 class WrongNumberOfPlayersError < StandardError; end
 class NoSuchStrategyError < StandardError; end
@@ -15,82 +17,64 @@ class WrongCurrencyValueError < StandardError; end
 # Тут все верно, единственное что можно поправить соединить методы gsub и downcase в одну цепочку
 
 def palindrome?(string)
-  string.gsub!(/[[:punct:][:blank:]]/, '')
-  string.downcase!
-  return string == string.reverse
+  string = string.gsub(/[[:punct:][:blank:]]/, '').downcase
+  string == string.reverse
 end
-
 
 # 2 task
-# Тут часть методов можно соединить в pipe, также просьба подумать, как решить эту задачу короче (Подсказка, можно создать хэш с дефолтным значением для любого ключа)
+# Тут часть методов можно соединить в pipe, также просьба подумать, как решить эту задачу короче (Подсказка, можно
+# создать хэш с дефолтным значением для любого ключа)
 
 def count_words(string)
-  string.gsub!(/[[:punct:]]/, '')
-  string.downcase!
+  string = string.gsub(/[[:punct:]]/, '').downcase
   words = string.split(' ')
-  counter = Hash.new()
-  words.each do |word|
-    if counter.key?(word)
-      counter[word] += 1
-    else
-      counter[word] = 1
-    end
-  end
-  return counter
+  counter = Hash.new(0)
+  words.each { |word| counter[word] += 1 }
+  counter
 end
-
 
 # 3 task
 # Зачем подключается модуль Set и почему не используется обычный массив?
 # В Ruby условный оператор может быть как префиксным так и постфиксным и вторая строчка переписывается в следующую:
 # raise WrongNumberOfPlayersError, 'Wrong number of players' if inp.length > 2 - что намного проще ситается и воспринимается глазами
 
-
 def rps_game_winner(inp)
-  if inp.length > 2 then raise WrongNumberOfPlayersError, 'Wrong number of players' end
-  turns = Set.new ['R', 'S', 'P']
+  raise WrongNumberOfPlayersError, 'Wrong number of players' if inp.length > 2
+  turns = %w(R S P)
 # Попробовать переписать следующую строчку в более удобочитаемой форме (возможно в несколько строк)
-  inp.each {|turn| unless turns.include?(turn[1]) then raise NoSuchStrategyError, 'No such strategy' end}
+  inp.each do |turn|
+    raise NoSuchStrategyError, 'No such strategy' unless turns.include?(turn[1])
+  end
 
   if inp[0][1] == inp[1][1] then return inp[0] end
 
   case inp[0][1]
-    when 'P'
-      return case inp[1][1]
-               when 'S' then inp[1]
-               when 'R' then inp[0]
-             end
-    when 'S'
-      return case inp[1][1]
-               when 'R' then inp[1]
-               when 'P' then inp[0]
-             end
-    when 'R'
-      return case inp[1][1]
-               when 'P' then inp[1]
-               when 'S' then inp[0]
-             end
+  when 'P'
+    case inp[1][1]
+    when 'S' then inp[1]
+    when 'R' then inp[0]
+    end
+  when 'S'
+    case inp[1][1]
+    when 'R' then inp[1]
+    when 'P' then inp[0]
+    end
+  when 'R'
+    case inp[1][1]
+    when 'P' then inp[1]
+    when 'S' then inp[0]
+    end
   end
 end
-
 
 # 4 task
 # Существует более короткое решение. Попробовать решить задачу в использованием методов группировки.
 
 def combine_anagrams(words)
-  words.map! {|x| x.downcase}
-  anagrams = Hash.new()
-  words.each do |word|
-    sorted = word.chars.sort
-    if anagrams.key?(sorted)
-      anagrams[sorted] += [word]
-    else
-      anagrams[sorted] = [word]
-    end
-  end
-  return anagrams.values
+  words.map! { |x| x.downcase }
+  anagrams = words.group_by { |word| word.chars.sort }
+  anagrams.values
 end
-
 
 # 5 task
 # Все ОК (кроме лишних return'ов)
@@ -104,59 +88,39 @@ class Dessert
   end
 
   def healthy?
-    return @calories < 200
+    @calories < 200
   end
 
   def delicious?
-    return true
+    true
   end
 end
-
 
 # 6 task
 class JellyBean < Dessert
   attr_accessor :flavor
 
   def delicious?
-    return @flavor != 'black licorice'
+    @flavor != 'black licorice'
   end
 end
-
 
 # 7 task
 # Отличное ООП-решение
 # Просьба переписать избегая дублирования кода с использованием алисов методов, а также избегая переменных класса, заменив их на константы
 
 class Numeric
-  def dollar
-    return NumericCurrency.new(self, :dollars)
-    # if self == 1 then return NumericCurrency.new(self, :dollars) else raise WrongCurrencyValueError, 'Wrong currency value' end
-  end
-
-  def dollars
-    return NumericCurrency.new(self, :dollars)
-    # if self != 1 then return NumericCurrency.new(self, :dollars) else raise WrongCurrencyValueError, 'Wrong currency value' end
-  end
-
-  def ruble
-    return NumericCurrency.new(self, :rubles)
-    # if self == 1 then return NumericCurrency.new(self, :rubles) else raise WrongCurrencyValueError, 'Wrong currency value' end
-  end
-
-  def rubles
-    return NumericCurrency.new(self, :rubles)
-    # if self != 1 then return NumericCurrency.new(self, :rubles) else raise WrongCurrencyValueError, 'Wrong currency value' end
-  end
-
-  def euro
-    return NumericCurrency.new(self, :euro)
+  currencies = %w(dollar dollars ruble rubles euro)
+  currencies.each do |c|
+    define_method("#{c}") do
+      NumericCurrency.new(self, :"#{c}")
+    end
   end
 end
 
-
 class NumericCurrency
-  @@dollar = 32.26
-  @@euro = 43.61
+  Dollar = 32.26
+  Euro = 43.61
 
   def initialize(value, currency)
     @value = value
@@ -164,26 +128,28 @@ class NumericCurrency
   end
 
   def in(currency)
-    return case @currency
-             when :dollars then case currency
-                                  when :rubles then return @value*@@dollar
-                                  when :euro then return @value*@@dollar/@@euro
-                                  when :dollars then return @value
-                                end
-             when :rubles then case currency
-                                 when :rubles then return @value
-                                 when :euro then return @value/@@euro
-                                 when :dollars then return @value/@@dollar
-                               end
-             when :euro then case currency
-                               when :rubles then return @value*@@uero
-                               when :euro then return @value
-                               when :dollars then return @value*@@euro/@@dollar
-                             end
-           end
+    case @currency
+    when :dollars, :dollar
+      case currency
+      when :rubles then @value * Dollar
+      when :euro then @value * Dollar / Euro
+      when :dollars then @value
+      end
+    when :rubles, :ruble
+      case currency
+      when :rubles then @value
+      when :euro then @value / Euro
+      when :dollars then @value / Dollar
+      end
+    when :euro
+      case currency
+      when :rubles then @value * Euro
+      when :euro then @value
+      when :dollars then @value * Euro / Dollar
+      end
+    end
   end
 end
-
 
 # 8 task
 # Решение верное, но просьба переписать используя медот define_method, а не интерпретируя строку в код - это медленно и крайне не безопасно
@@ -192,17 +158,26 @@ class Class
   def attr_accessor_with_history(*args)
     args.each do |arg|
       # getter
-      self.class_eval("def #{arg}; @#{arg}; end")
+      define_method("#{arg}") do
+        instance_variable_get("@#{arg}")
+      end
 
       # setter
-      self.class_eval("def #{arg}=(val); @#{arg}=val; @#{arg}_history ||= [nil]; @#{arg}_history << val; end")
+      define_method("#{arg}=") do |val|
+        instance_variable_set("@#{arg}", val)
+        history = instance_variable_get("@#{arg}_history")
+        history ||= [nil]
+        history << val
+        instance_variable_set("@#{arg}_history", history)
+      end
 
       # history extractor
-      self.class_eval("def #{arg}_history; @#{arg}_history; end")
+      define_method("#{arg}_history") do
+        instance_variable_get("@#{arg}_history")
+      end
     end
   end
 end
-
 
 # 9 task
 # Вешение рабочее, но просьба найти решение, в котором не расширяются базовые String, а тем более основной класс Object
@@ -217,7 +192,6 @@ class String
   end
 end
 
-
 class Object
   def palindrome?
     if self.is_a? Enumerable
@@ -231,23 +205,21 @@ class Object
   end
 end
 
-
 # 10 task
-# Верное решение. Существует более простое и короткое решение (Подсказка: не создавать лишнюю переменную и метод который возвращает всевозможные комбинации перемножаемых массивов)
+# Верное решение. Существует более простое и короткое решение (Подсказка: не создавать лишнюю переменную и метод который
+# возвращает всевозможные комбинации перемножаемых массивов)
+
 class CartesianProduct
-  attr_accessor :c
   def initialize(a, b)
     @a = a
     @b = b
-    @c = []
-    a.each do |x|
-      b.each do |y|
-        @c << [x, y]
-      end
-    end
   end
 
-  def each(&block)
-    @c.each(&block)
+  def each
+    @a.each do |x|
+      @b.each do |y|
+        yield [x, y]
+      end
+    end
   end
 end
