@@ -110,12 +110,26 @@ end
 # Просьба переписать избегая дублирования кода с использованием алисов методов, а также избегая переменных класса, заменив их на константы
 
 class Numeric
-  currencies = %w(dollar dollars ruble rubles euro)
-  currencies.each do |c|
-    define_method("#{c}") do
-      NumericCurrency.new(self, :"#{c}")
-    end
+  def dollar
+    NumericCurrency.new(self, :dollars)
   end
+  alias_method :dollars, :dollar
+
+  def ruble
+    NumericCurrency.new(self, :rubles)
+  end
+  alias_method :rubles, :ruble
+
+  def euro
+    NumericCurrency.new(self, :euro)
+  end
+
+  # currencies = %w(dollar dollars ruble rubles euro)
+  # currencies.each do |c|
+  #   define_method("#{c}") do
+  #     NumericCurrency.new(self, :"#{c}")
+  #   end
+  # end
 end
 
 class NumericCurrency
@@ -185,23 +199,15 @@ end
 
 class String
   def palindrome?
-    string = self
-    string.gsub!(/[[:punct:][:blank:]]/, '')
-    string.downcase!
-    return string == string.reverse
+    string = self.gsub(/[[:punct:][:blank:]]/, '').downcase
+    string == string.reverse
   end
 end
 
-class Object
+module Enumerable
   def palindrome?
-    if self.is_a? Enumerable
-      forward = []
-      self.each do |x|
-        forward << x
-      end
-      reversed = forward.reverse
-      return forward == reversed
-    end
+    forward = self.collect { |i| i }
+    forward == forward.reverse
   end
 end
 
